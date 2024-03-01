@@ -1,0 +1,15 @@
+.idea/
+__pycache__/
+venv/
+session/
+log/
+.env
+__pycache__/
+.ipynb_checkpoints/
+src/bert_cpu_save_model.pt
+src/bert_cpu_weibo_model.pt
+src/outputs_weibo/
+app/api/multilingual_api/contorller/*.html
+app/api/multilingual_api/contorller/*.ipynb
+app/api/multilingual_api/contorller/*.json
+.vscode/
