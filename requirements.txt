@@ -1,0 +1,3 @@
+arrow==1.3.0
+pandas==2.2.1
+liontk @ file:///mnt/shared/projects/whl-libs/liontk-2024.3.6-py3-none-any.whl#sha256=e4abf588860cfbfa22e57afcc3bd668e0e43e2b8b5857c3192a34c0d1ab25c7b
