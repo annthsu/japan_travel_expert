@@ -1,0 +1,5 @@
+openai==1.13.3
+loguru==0.7.0
+pandas==2.2.1
+vllm==0.3.3
+
