@@ -116,17 +116,20 @@ class QueryPOI:
         return final_result
 
     def preprocess_for_prompt(self, poi_indexs: list):
-        result = dict()
+        tour_result = dict()
+        desc_result = dict()
+
         for idx in poi_indexs:
             poi_data = self.poi_data.iloc[idx]
-            tmp_dict = result.setdefault(poi_data['ATTRACTION'], dict())
+            name = poi_data['ATTRACTION']
+            tmp_dict = tour_result.setdefault(name, dict())
 
-            tmp_dict['Description'] = poi_data['labeling_introduction']
+            desc_result[name] = poi_data['labeling_introduction']
             tmp_dict['Latitude and longitude'] = f"({poi_data['LAT']:.3f}, {poi_data['LONG']:.3f})"
             tmp_dict['Business_hours'] = self._process_business_hours(poi_data['OPENING_TIME_DICT'])
             tmp_dict['Resident_time'] = self._process_stop_time(poi_data['STOP_TIME'])
         
-        return result
+        return tour_result, desc_result
 
     def query_poi(self, user_input: dict):
         max_poi_count = user_input['days'] * user_input['poi_each_day']
@@ -171,11 +174,11 @@ class QueryPOI:
 
         st = time()
         query_res = self.query_poi(user_input)
-        result = self.preprocess_for_prompt(query_res)
+        tour_result, desc_result = self.preprocess_for_prompt(query_res)
 
-        logger.info(f"Get {len(result)} pois.")
+        logger.info(f"Get {len(tour_result)} pois.")
         logger.info(f"Cost time: {time() - st: .1f} s")
-        return result
+        return tour_result, desc_result
 
 
 if __name__ == "__main__":
