@@ -21,6 +21,7 @@ class QueryPOI:
         poi_df['exclude_types'] = poi_df['exclude_types'].apply(eval)
         poi_df['STOP_TIME'] = poi_df['STOP_TIME'].fillna('[]').apply(eval)
         poi_df['OPENING_TIME_DICT'] = poi_df['OPENING_TIME_DICT'].fillna(r'{}').apply(eval)
+        poi_df['labeling_introduction'] = poi_df['labeling_introduction'].fillna('')
         self.poi_data = poi_df
         self.poi_labels = poi_df['labels']
         self.type_filter = poi_df['exclude_types'].str.len()==0
@@ -120,9 +121,11 @@ class QueryPOI:
             poi_data = self.poi_data.iloc[idx]
             tmp_dict = result.setdefault(poi_data['ATTRACTION'], dict())
 
+            tmp_dict['Description'] = poi_data['labeling_introduction']
             tmp_dict['Latitude and longitude'] = f"({poi_data['LAT']:.3f}, {poi_data['LONG']:.3f})"
             tmp_dict['Business_hours'] = self._process_business_hours(poi_data['OPENING_TIME_DICT'])
             tmp_dict['Resident_time'] = self._process_stop_time(poi_data['STOP_TIME'])
+        
         return result
 
     def query_poi(self, user_input: dict):
