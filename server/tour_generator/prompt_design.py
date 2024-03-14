@@ -1,7 +1,9 @@
 from liontk.enum.azure_openai import AzureGPT
 from liontk.openai.nlp.azure_gpt_client import AzureGPTClient
 import arrow
-import time
+import json
+import time 
+import re
 
 
 class Japan_travel_itinerary_generation:
@@ -16,18 +18,19 @@ class Japan_travel_itinerary_generation:
             3. Latitude and longitude: The location of the attraction on the map. \
             These three pieces of information can be used to arrange the order of attractions.\
             
-            Your task is to create a travel itinerary based on the information above and your existing knowledge of {AREA} travel,\
-            step1: Understand the attractions and reference information provided. \
-            step2: Use the knowledge from Step 1 to create an itinerary for {AREA} {DAYS} days. \
-            step3: Think about how to arrange the scenic spots more smoothly and reconstruct it. \
-            step4: Finally output in json format. \
+            Your task is to create a travel itinerary based on the above information and your existing knowledge of {AREA} travel,\
+              step1: Thoroughly understand the attractions and the reference information provided. \
+              step2: After thinking, prioritize the attractions with similar longitude and latitude on the same day of the itinerary, and then sort them according to business hours.
+              step3: Use the ideas from steps 1 and 2 to create an itinerary for {AREA} {DAYS} days.
+              step4: Think about how to arrange your daily schedule more smoothly, and make final reconstruction. \
+              step5: Finally output in json format. \
                 
-            This task requires the following 5 points: \
-            1. Be sure to plan your itinerary based on your knowledge of the attractions and the relative distance calculated based on the time and latitude and longitude of the attraction reference information. \
-            2. The order of attractions should be arranged reasonably and smoothly. Relatively close attractions should be placed on the same day as much as possible, and the transportation time between attractions should be taken into consideration. \
-            3. Please try your best to evenly distribute attractions in your daily itinerary to avoid duplicate attractions. \
-            4. The output must be in Traditional Chinese.
-            5. Make sure the output follows the json format below, no other text. {JSON_PARSER}. \
+            You need to pay attention to the following 5 points in this task:\
+              1. Plan the itinerary based on your own understanding of the scenic spots and the relative distance calculated from the time and latitude and longitude of the scenic spot reference information. \
+              2. The sequence of scenic spots is arranged reasonably and smoothly. For nearby attractions, try to arrange them on the same day, and consider the transportation time between attractions. \
+              3. Please distribute the scenic spots evenly in the daily itinerary to avoid duplicating scenic spots in the itinerary. \
+              4. The output must be in Traditional Chinese.
+              5. Make sure the output follows the json format below and has no other text output. {JSON_PARSER}. \
             '''
         self.json_parser = {
             "DAY 1": {
@@ -78,9 +81,19 @@ class Japan_travel_itinerary_generation:
 
             time_diff = time2 - time1
 
-            output[key]['cost_time'] = time_diff.total_seconds() / 3600
+            output[key]['cost_time'] = round(time_diff.total_seconds() / 3600,3)
 
         return output
+    
+    @staticmethod
+    def translate_time(stay_time):
+        if ("hour" in stay_time) and ("minute" in stay_time):
+            x = re.findall(r'\d+', stay_time)
+            return round(int(x[0]) + int(x[1])/60,3)
+        elif ("hour" in stay_time):
+            return float(re.findall(r'\d+',stay_time)[0])
+        else:
+            return round(int(re.findall(r'\d+',stay_time)[0])/60,3)
 
     def main(self):
 
@@ -102,13 +115,20 @@ class Japan_travel_itinerary_generation:
         count = 0
         while count < 3:
             try:
+                start = time.time()
+                
                 response = self.client.chat(
                     model_name=AzureGPT.DSOPENAI2_GPT_4_8K,
                     temperature=0.5,
                     messages=conversation,
                     max_tokens=8192 -
-                    self.client.compute_tokens(str(conversation))
+                    self.client.compute_tokens(str(conversation)),
+                    timeout=100
                 )
+                
+                end = time.time()
+                print("執行時間：%f 秒" % (end - start))
+                print("-"*100)
 
                 break
             except:
@@ -120,6 +140,8 @@ class Japan_travel_itinerary_generation:
                     raise
 
                 continue
+            
+        print(response)
 
         output = eval(response.choices[0].message.content[response.choices[0].message.content.find(
             "{"):response.choices[0].message.content.rfind("}")+1])
@@ -127,55 +149,37 @@ class Japan_travel_itinerary_generation:
         # print(output)
 
         final_itinerary = self.caculate_time(output)
+        
+        for key in final_itinerary.keys():
+            for attr in final_itinerary[key]['Attractions']:
+                final_itinerary[key]['Attractions'][attr]['Stay_time'] = self.translate_time(final_itinerary[key]['Attractions'][attr]['Stay_time'])
+        
+        with open("test.json","w",encoding="utf-8") as file:
+            json.dump(final_itinerary,file)
+        
         print(final_itinerary)
 
 
 if __name__ == "__main__":
-
-    reference_data = {
-        '平安神宮': {
-            'resident_time': '1 hour',
-            'Business_hours': '06:00-17:00',
-            'Latitude and longitude': (35.01632498568756, 135.78240484232853)
-        },
-        '知恩院': {
-            'resident_time': '1 hour',
-            'Business_hours': '09:00–16:00',
-            'Latitude and longitude': (35.005615590922915, 135.78237767267572),
-        },
-        '嵐山竹林步道': {
-            'resident_time': '30 minutes',
-            'Business_hours': '24 hours',
-            'Latitude and longitude': (35.01696797716031, 135.67133345664692),
-        },
-        '金閣寺': {
-            'resident_time': '1 hour and 30 minutes',
-            'Business_hours': '09:00–17:00',
-            'Latitude and longitude': (35.03949806410819, 135.72922301701675),
-        },
-        '伏見稻荷大社': {
-            'resident_time': '3 hours',
-            'Business_hours': '24 hours',
-            'Latitude and longitude': (34.96791427293547, 135.7792090532588),
-        },
-        '清水寺': {
-            'resident_time': '5 hours',
-            'Business_hours': '06:00–18:00',
-            'Latitude and longitude': (34.9948595332497, 135.78468245344382),
-        },
-        '嵐山小火車': {
-            'resident_time': '2 hours',
-            'Business_hours': '08:00-18:00',
-            'Latitude and longitude': (35.01752340089544, 135.67036753031155),
-        },
-        '二條城': {
-            'resident_time': '1 hour',
-            'Business_hours': '08:45–17:00',
-            'Latitude and longitude': (35.01582880477425, 135.74808384506673),
-        }
-    }
-    area = "京都"
-    days = "3"
+    
+    # with open('tokyo_test_data2.json',encoding="utf-8") as jsonfile:
+    #     json_data = json.load(jsonfile)
+    
+    # reference_data={}
+    # for key in json_data.keys():
+    #     reference_data.update(json_data[key])
+        
+    # for key,value in reference_data.items():
+    #     del reference_data[key]['Description']
+        
+    # reference_data = dict(list(reference_data.items())[:8])
+    
+    
+    with open('tokyo_av.json',encoding="utf-8") as jsonfile:
+        reference_data = json.load(jsonfile)
+    
+    area = "東京"
+    days = "5"
     season = "秋天"
 
     itinerary_generation = Japan_travel_itinerary_generation(
