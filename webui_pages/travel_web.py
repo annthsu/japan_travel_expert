@@ -299,11 +299,10 @@ def get_day_travel(travel_days, travel_compactness, city, attraction_preferences
 
     return current_travel
 
-title = "日本旅遊規劃"
-with gr.Blocks(theme='finlaymacklon/smooth_slate',title=title) as demo:
+with gr.Blocks(theme='finlaymacklon/smooth_slate',title="日本旅遊規劃") as demo:
 
     with gr.Row():
-        gr.HTML(f"<div style=\"text-align: center;\">\n<h1>{title}</h1>\n</div>")
+        gr.HTML(f"<div style=\"text-align: center;\">\n<h1>日本旅遊規劃</h1>\n</div>")
 
     with gr.Row():
         with gr.Column():
