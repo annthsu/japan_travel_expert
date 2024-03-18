@@ -156,9 +156,9 @@ def get_all_travel(travel_days, travel_compactness, city, attraction_preferences
         url_formet = '/'.join(a_list)
         url = f'https://www.google.com/maps/dir/{url_formet}'.replace(' ','')
         t = f'''<body>
-            <h3 style="font-weight: bold;">{day}</h3>
-            <h3>{route1}</h3>
-            <h3><a href={url} style="color: #0072E3;">路線圖</a></h3>
+            <h3 style="text-align: center; font-weight: bold;">{day}</h3>
+            <h3 style="text-align: center; font-weight: bold;">{route1}</h3>
+            <h3 style="text-align: center;"><a href={url} style="color: #0072E3;">google map</a></h3>
             </body>'''
         result.append(t)
     print(result)
@@ -282,9 +282,10 @@ def get_day_travel(travel_days, travel_compactness, city, attraction_preferences
         url = f'https://www.google.com/maps/dir/{url_formet}'.replace(' ','')
         t = f'''<body>
           <h3 style="text-align: center; font-weight: bold;">{day}</h3>
-          <h3 style="text-align: center;">{route1}</h3>
-          <h3 style="text-align: center;"><a href={url} style="color: #0072E3;">路線圖</a></h3>
-          <h3 style="text-align: center;">總花費時間: {cost_time} 小時</h3>
+          <h3 style="text-align: center; font-weight: bold;">{route1}</h3>
+          <h3 style="text-align: center; font-weight: bold;">總花費時間: {cost_time} 小時</h3>
+          <h3 style="text-align: center;"><a href={url} style="color: #0072E3;">google map</a></h3>
+          <h3></h3>
           </body>'''
         result.append(t)
     if int(current_day) <= int(travel_days):
@@ -297,40 +298,39 @@ def get_day_travel(travel_days, travel_compactness, city, attraction_preferences
 with gr.Blocks(theme='finlaymacklon/smooth_slate',title="日本旅遊規劃") as demo:
 
     with gr.Row():
-        gr.HTML(f"<div style=\"text-align: center;\">\n<h1>日本旅遊規劃</h1>\n</div>")
+        gr.HTML(f"<div style=\"text-align: center;\">\n<h1>🧫 日本旅遊規劃 🧫</h1>\n</div>")
 
     with gr.Row():
         with gr.Column():
             travel_days = gr.Dropdown(["1", "2", "3", "4", "5", "6", "7"], value='5', label="天數", info="請選擇總天數")
             travel_compactness = gr.Dropdown(["1", "2", "3", "4", "5"], value='3', label="行程緊湊度", info="請選擇一天想安排多少個景點")
-            season = gr.Radio(['春天','夏天','秋天','冬天'], value='夏天', label="旅行季節", info="請選擇旅行季節")
+            season = gr.Radio(['春天','夏天','秋天','冬天'], value='春天', label="旅行季節", info="請選擇旅行季節")
         with gr.Column():
             city = gr.Dropdown(["東京都"], value='東京都', label="城市", info="請選擇想去的城市")
-            attraction_preferences = gr.CheckboxGroup(["購物", "親子", "藝文", "自然生態", "歷史古蹟", "戶外活動", "宗教", "動漫、二次元", "溫泉", "水上活動", "主題樂園"],
-                                                      label="行程主題", info="請選擇想要的主題類型")
+            attraction_preferences = gr.CheckboxGroup(["購物", "親子", "藝文", "自然生態", "歷史古蹟", "戶外活動", "宗教", "動漫、二次元", "溫泉", "水上活動", "主題樂園"],label="行程主題", info="請選擇想要的主題類型")
     with gr.Row():
         result_but = gr.Button("結果!!!!")
     with gr.Tabs():
         gr.HTML(f"<div style=\"text-align: center;\">\n<h2>🎐 行程總覽</h2>\n<h2></h2></div>")
         with gr.Row():
-            with gr.Column():
+            with gr.Column(variant="panel"):
                 all_travel = gr.HTML()
-            with gr.Column():
+                result_df_output = gr.Dataframe(interactive=False, wrap=False)
+            with gr.Column(variant="panel"):
                 current_day = gr.Dropdown(
                     ["1", "2", "3", "4", "5", "6", "7"], value='1', label="詳細行程", info="選擇第幾天行程")
                 day_but = gr.Button("查看結果")
                 map_output = gr.HTML()
-                result_df_output = gr.Dataframe(interactive=True, wrap=True)
+                # result_df_output = gr.Dataframe(interactive=True, wrap=True)
     with gr.Tabs():
         gr.HTML(f"<div style=\"text-align: center;\">\n<h2>🎐 詳細行程內容</h2>\n<h2></h2></div>")
         day_travel = gr.HTML()
         with gr.Row():
-            with gr.Column():
-                # day_travel = gr.HTML()
+            with gr.Column(variant="panel"):
                 day_description = gr.HTML()
-            with gr.Column():
-                gr.HTML('<h3 style="text-align: center; font-weight: bold;">行程規劃</h3>')
-                df_output = gr.Dataframe(interactive=True, wrap=True)
+            with gr.Column(variant="panel"):
+                gr.HTML('<h3></h3><h3 style="text-align: center; font-weight: bold;">行程規劃</h3>')
+                df_output = gr.Dataframe(interactive=False, wrap=False)
 
         day_but.click(get_map, inputs=[travel_days, travel_compactness,city, attraction_preferences, current_day, season], outputs=map_output)
         day_but.click(get_route_df, inputs=[travel_days, travel_compactness, city, attraction_preferences, current_day, season], outputs=df_output)
