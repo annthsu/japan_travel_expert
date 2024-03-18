@@ -1,6 +1,6 @@
 from liontk.enum.azure_openai import AzureGPT
 from liontk.openai.nlp.azure_gpt_client import AzureGPTClient
-from server.poi_labeling.poi_query import QueryPOI
+#from server.poi_labeling.poi_query import QueryPOI
 from liontk.log.log import Log
 import arrow
 import json
