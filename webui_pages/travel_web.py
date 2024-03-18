@@ -4,7 +4,6 @@ from server.tour_generator.description_writer import Description_Writer
 from server.poi_labeling.poi_query import QueryPOI
 import gradio as gr
 import pandas as pd
-# search weather data that is in csv file
 
 
 def get_data(travel_days, travel_compactness, city, attraction_preferences, season):
