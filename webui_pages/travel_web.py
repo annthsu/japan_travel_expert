@@ -145,8 +145,7 @@ def get_data(travel_days, travel_compactness, city, attraction_preferences, seas
 
 
 def get_all_travel(travel_days, travel_compactness, city, attraction_preferences, season):
-    result_dict = get_data(travel_days, travel_compactness,
-                           city, attraction_preferences, season)
+    result_dict = get_data(travel_days, travel_compactness, city, attraction_preferences, season)
     result = list()
     for day, info in result_dict.items():
         attractions = info['Attractions']
@@ -213,7 +212,6 @@ def get_result_df(travel_compactness, city, attraction_preferences, season):
         result_dict['行程主題'] = '+'.join(attraction_preferences)
     else:
         result_dict['行程主題'] = '無指定'
-    # for i in range(int(travel_compactness)):
 
     result_dict['行程緊湊度'] = int(travel_compactness)*'🍜'
     result.append(result_dict)
@@ -242,7 +240,6 @@ def get_route_df(travel_days, travel_compactness, city, attraction_preferences, 
         df = pd.DataFrame(all_result[int(current_day)-1])
     else:
         df = pd.DataFrame(columns=['景點名稱', '預計停留時間'])
-#   df = pd.DataFrame(all_result[0])
 
     return df
 
@@ -251,16 +248,15 @@ def get_day_description(travel_days, travel_compactness, city, attraction_prefer
                            city, attraction_preferences, season)
     result = list()
     for day, info in result_dict.items():
-        attractions = info['Attractions']
         description = info['Description']
         title = info['Title']
 
-        a_list = list()
         t = f'''<body>
           <h3></h3>
           <h3 style="text-align: center; font-weight: bold;">行程介紹:{title}</h3>
           <h3 style="text-align: center;">{description}</h3>
           </body>'''
+
         result.append(t)
     if int(current_day) <= int(travel_days):
         current_travel = result[int(current_day)-1]
@@ -272,8 +268,7 @@ def get_day_description(travel_days, travel_compactness, city, attraction_prefer
 
 
 def get_day_travel(travel_days, travel_compactness, city, attraction_preferences, current_day, season):
-    result_dict = get_data(travel_days, travel_compactness,
-                           city, attraction_preferences, season)
+    result_dict = get_data(travel_days, travel_compactness, city, attraction_preferences, season)
     result = list()
     for day, info in result_dict.items():
         cost_time = round(info['cost_time'], 1)
