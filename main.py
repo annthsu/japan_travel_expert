@@ -1,7 +1,8 @@
 from server.tour_generator.prompt_design import Japan_travel_itinerary_generation
 from server.tour_generator.description_writer import Description_Writer
 from server.poi_labeling.poi_query import QueryPOI
-
+from loguru import logger
+logger.add("logs/Japan_Travel_Expert.log")
 # input
 area = "東京都"
 days = 5

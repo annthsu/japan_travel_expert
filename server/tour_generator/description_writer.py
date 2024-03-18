@@ -5,8 +5,6 @@ from loguru import logger
 import time
 from typing import Dict, List
 
-logger.add("logs/DES_WRITING.log")
-
 class Description_Writer():
     def __init__(self) -> None:
         self.env_enum = AzureGPT.DSOPENAI2
