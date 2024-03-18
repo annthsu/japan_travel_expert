@@ -21,7 +21,6 @@ user_input = {
 # Retrieve Data
 query_poi = QueryPOI()
 poi_query = query_poi.main(user_input) 
-
 # Generate itinerary
 itinerary_generation = Japan_travel_itinerary_generation(ref_data = poi_query[0], area=area, days=days, season=season)
 itinerary = itinerary_generation.main()

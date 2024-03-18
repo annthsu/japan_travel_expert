@@ -1,18 +1,11 @@
 from liontk.enum.azure_openai import AzureGPT
 from liontk.openai.nlp.azure_gpt_client import AzureGPTClient
 #from server.poi_labeling.poi_query import QueryPOI
-from liontk.log.log import Log
+from loguru import logger
 import arrow
 import json
 import time 
 import re
-
-log = Log(log_path='') #TODO
-logger = log.setup_logger(
-    name='Japan_travel_itinerary_generation',
-    log_file='Japan_travel_itinerary_generation.log'
-    )
-
 
 class Japan_travel_itinerary_generation:
     def __init__(self, ref_data, area, days, season) -> None:
@@ -113,10 +106,10 @@ class Japan_travel_itinerary_generation:
         ]
         
         count = 0
+        start = time.time()
+        logger.info('Start executing the gpt api')
         while count < 3:
             try:
-                start = time.time()
-                
                 response = self.client.chat(
                     model_name=AzureGPT.DSOPENAI2_GPT_4_8K,
                     temperature=0.5,
@@ -126,27 +119,23 @@ class Japan_travel_itinerary_generation:
                     timeout=100
                 )
                 
+                output = eval(response.choices[0].message.content[response.choices[0].message.content.find(
+                    "{"):response.choices[0].message.content.rfind("}")+1])
+                
                 end = time.time()
-                logger.info("執行時間：{} 秒".format(end - start))
+                logger.info('Execution time: {} seconds'.format(end - start))
                 break
             except Exception as e:
                 count += 1
-                logger.info('This is {} times failed'.format(count))
+                logger.info('This is {} time(s) failed'.format(count))
                 
                 if count==3:
-                    message = log.parse_exception(e)
-                    logger.error(message)
+                    logger.error(e)
                     raise
 
                 continue
-            
-        try:
-            output = eval(response.choices[0].message.content[response.choices[0].message.content.find(
-                "{"):response.choices[0].message.content.rfind("}")+1])
-        except :
-            logger.error("eval parsing error")
         
-        # print(output)
+        logger.info('The itinerary is successfully generated and parsed into json')
 
         final_itinerary = self.caculate_time(output)
         for key in final_itinerary.keys():
