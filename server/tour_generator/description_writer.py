@@ -2,6 +2,7 @@ from liontk.enum.azure_openai import AzureGPT
 from liontk.openai.nlp.azure_gpt_client import AzureGPTClient
 import ast
 from loguru import logger
+import time
 from typing import Dict, List
 
 class Description_Writer():
@@ -35,6 +36,7 @@ class Description_Writer():
         self.retry = 0
 
     def write(self, itinerary: Dict, poi_query_description: Dict) -> Dict:
+        start = time.time()
         logger.info("Start writing description...")
         description = self._map_attraction_des(itinerary, poi_query_description)
         # Format user input
@@ -56,7 +58,11 @@ class Description_Writer():
         logger.info("Output Get.")
         # 
         try:
-            return self._output_formatter(output, itinerary)
+            output_dict = self._output_formatter(output, itinerary)
+            logger.info('Writing Description Done.')
+            end = time.time()
+            logger.info("執行時間：{} 秒".format(end - start))
+            return output_dict
         except:
             if self.retry == 3:
                 logger.error("Failed. Retry over 3 Times.")
@@ -69,7 +75,6 @@ class Description_Writer():
         description = {}
         for day, itin in itinerary.items():
             description[day] = {}
-            print(day)
             for attraction in itin['Attractions'].keys():
                 try:
                     description[attraction] = poi_query_description[attraction]

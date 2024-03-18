@@ -1,10 +1,11 @@
 from liontk.enum.azure_openai import AzureGPT
 from liontk.openai.nlp.azure_gpt_client import AzureGPTClient
+#from server.poi_labeling.poi_query import QueryPOI
+from loguru import logger
 import arrow
 import json
 import time 
 import re
-
 
 class Japan_travel_itinerary_generation:
     def __init__(self, ref_data, area, days, season) -> None:
@@ -103,20 +104,12 @@ class Japan_travel_itinerary_generation:
             {"role": "user",
              "content": self.user_prompt}
         ]
-
-        # response = self.client.chat(
-        #     model_name=AzureGPT.DSOPENAI2_GPT_4_32K,
-        #     temperature=0.5,
-        #     messages=conversation,
-        #     max_tokens=16384 -
-        #     self.client.compute_tokens(str(conversation))
-        # )
         
         count = 0
+        start = time.time()
+        logger.info('Start executing the gpt api')
         while count < 3:
             try:
-                start = time.time()
-                
                 response = self.client.chat(
                     model_name=AzureGPT.DSOPENAI2_GPT_4_8K,
                     temperature=0.5,
@@ -126,62 +119,29 @@ class Japan_travel_itinerary_generation:
                     timeout=100
                 )
                 
+                output = eval(response.choices[0].message.content[response.choices[0].message.content.find(
+                    "{"):response.choices[0].message.content.rfind("}")+1])
+                
                 end = time.time()
-                print("執行時間：%f 秒" % (end - start))
-                print("-"*100)
-
+                logger.info('Execution time: {} seconds'.format(end - start))
                 break
-            except:
+            except Exception as e:
                 count += 1
-                print('This is {} times failed'.format(count))
-                # time.sjapan_travel/prompt_design.pyleep(30)
+                logger.info('This is {} time(s) failed'.format(count))
                 
                 if count==3:
+                    logger.error(e)
                     raise
 
                 continue
-            
-        print(response)
-
-        output = eval(response.choices[0].message.content[response.choices[0].message.content.find(
-            "{"):response.choices[0].message.content.rfind("}")+1])
         
-        # print(output)
+        logger.info('The itinerary is successfully generated and parsed into json')
 
         final_itinerary = self.caculate_time(output)
-        
         for key in final_itinerary.keys():
             for attr in final_itinerary[key]['Attractions']:
                 final_itinerary[key]['Attractions'][attr]['Stay_time'] = self.translate_time(final_itinerary[key]['Attractions'][attr]['Stay_time'])
         
-        with open("test.json","w",encoding="utf-8") as file:
-            json.dump(final_itinerary,file)
-        
-        print(final_itinerary)
+       
+        return final_itinerary
 
-
-if __name__ == "__main__":
-    
-    # with open('tokyo_test_data2.json',encoding="utf-8") as jsonfile:
-    #     json_data = json.load(jsonfile)
-    
-    # reference_data={}
-    # for key in json_data.keys():
-    #     reference_data.update(json_data[key])
-        
-    # for key,value in reference_data.items():
-    #     del reference_data[key]['Description']
-        
-    # reference_data = dict(list(reference_data.items())[:8])
-    
-    
-    with open('tokyo_av.json',encoding="utf-8") as jsonfile:
-        reference_data = json.load(jsonfile)
-    
-    area = "東京"
-    days = "5"
-    season = "秋天"
-
-    itinerary_generation = Japan_travel_itinerary_generation(
-        reference_data, area, days, season)
-    itinerary_generation.main()
