@@ -127,11 +127,11 @@ class Japan_travel_itinerary_generation:
                 )
                 
                 end = time.time()
-                logger.info.info("執行時間：{} 秒".format(end - start))
+                logger.info("執行時間：{} 秒".format(end - start))
                 break
             except Exception as e:
                 count += 1
-                logger.info.info('This is {} times failed'.format(count))
+                logger.info('This is {} times failed'.format(count))
                 
                 if count==3:
                     message = log.parse_exception(e)
