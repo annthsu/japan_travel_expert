@@ -108,7 +108,7 @@ class Japan_travel_itinerary_generation:
         count = 0
         start = time.time()
         logger.info('Start executing the gpt api')
-        while count < 3:
+        while count < 5:
             try:
                 response = self.client.chat(
                     model_name=AzureGPT.DSOPENAI2_GPT_4_8K,
@@ -122,8 +122,9 @@ class Japan_travel_itinerary_generation:
                 output = eval(response.choices[0].message.content[response.choices[0].message.content.find(
                     "{"):response.choices[0].message.content.rfind("}")+1])
                 
-                end = time.time()
                 logger.info('Execution time: {} seconds'.format(end - start))
+                final_itinerary = self.caculate_time(output)
+                end = time.time()
                 break
             except Exception as e:
                 count += 1
@@ -137,10 +138,10 @@ class Japan_travel_itinerary_generation:
         
         logger.info('The itinerary is successfully generated and parsed into json')
 
-        final_itinerary = self.caculate_time(output)
-        for key in final_itinerary.keys():
-            for attr in final_itinerary[key]['Attractions']:
-                final_itinerary[key]['Attractions'][attr]['Stay_time'] = self.translate_time(final_itinerary[key]['Attractions'][attr]['Stay_time'])
+
+        # for key in final_itinerary.keys():
+        #     for attr in final_itinerary[key]['Attractions']:
+        #         final_itinerary[key]['Attractions'][attr]['Stay_time'] = self.translate_time(final_itinerary[key]['Attractions'][attr]['Stay_time'])
         
        
         return final_itinerary
