@@ -123,7 +123,7 @@ def get_map(current_day, travel_days):
         else:
             medium = ''
         map_result = f'''
-        <iframe width="600" height="450" style="border:0" loading="lazy" allowfullscreen src="https://www.google.com/maps/embed/v1/directions?{begin}{medium}{final}&mode=transit&key=AIzaSyCZwayq0JV3PCkeuk20XFbKCuX_o8snE6o"></iframe>
+        <iframe width="600" height="450" style="border:0" loading="lazy" allowfullscreen src="https://www.google.com/maps/embed/v1/directions?{begin}{medium}{final}&mode=transit&key={key}"></iframe>
         '''
         print(map_result)
         result.append(map_result)
@@ -146,9 +146,8 @@ def get_route_df(current_day, travel_days):
         for attraction, details in attractions.items():
             day_dict = {}
             day_dict['景點名稱'] = attraction
-            stay_time = details['Start_time'] + '~' + details['End_time'] + \
-                ' (' + str(round(details['Stay_time'], 1)
-                           ).replace('.0', '') + '小時)'
+            print(details['Stay_time'])
+            stay_time = details['Start_time'] + '~'+ details['End_time'] +' (' + details['Stay_time'] +')'
             day_dict['預計停留時間'] = stay_time
             result.append(day_dict)
         all_result.append(result)
