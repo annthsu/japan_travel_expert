@@ -5,6 +5,7 @@ from server.poi_labeling.poi_query import QueryPOI
 import gradio as gr
 import pandas as pd
 
+d = di
 
 def get_data(travel_days, travel_compactness, city, attraction_preferences, season):
     # query_poi = QueryPOI()
@@ -13,20 +14,20 @@ def get_data(travel_days, travel_compactness, city, attraction_preferences, seas
     print(travel_compactness)
     print(city)
     print(attraction_preferences)
-    user_input = {
-        "poi_each_day": int(travel_days),
-        "days": int(travel_compactness),
-        "city": city,
-        "labels": attraction_preferences
-    }
-    print(user_input)
+    # user_input = {
+    #     "poi_each_day": int(travel_days),
+    #     "days": int(travel_compactness),
+    #     "city": city,
+    #     "labels": attraction_preferences
+    # }
+    # print(user_input)
     # poi_query = query_poi.main(user_input) 
     # # Generate itinerary
     # itinerary_generation = Japan_travel_itinerary_generation(ref_data = poi_query[0], area=city, days=int(travel_compactness), season=season)
     # itinerary = itinerary_generation.main()
     # # Write description
-    # itin_with_des = Description_Writer().write(itinerary=itinerary, poi_query_description=poi_query[1])
-    # print(itin_with_des)
+    # result_dict = Description_Writer().write(itinerary=itinerary, poi_query_description=poi_query[1])
+    # print(result_dict)
 
     result_dict = {
   "DAY 1": {
@@ -191,7 +192,7 @@ def get_map(travel_days, travel_compactness, city, attraction_preferences, curre
         else:
             medium = ''
         map_result = f'''
-        <iframe width="600" height="450" style="border:0" loading="lazy" allowfullscreen src="https://www.google.com/maps/embed/v1/directions?{begin}{medium}{final}&key=AIzaSyCZwayq0JV3PCkeuk20XFbKCuX_o8snE6o"></iframe>
+        <iframe width="600" height="450" style="border:0" loading="lazy" allowfullscreen src="https://www.google.com/maps/embed/v1/directions?{begin}{medium}{final}&key={key}"></iframe>
         '''
         result.append(map_result)
 
@@ -338,6 +339,5 @@ with gr.Blocks(theme='finlaymacklon/smooth_slate',title="日本旅遊規劃") as
         day_but.click(get_day_description, inputs=[travel_days, travel_compactness, city, attraction_preferences, current_day, season], outputs=day_description)
         result_but.click(get_all_travel, inputs=[travel_days, travel_compactness, city, attraction_preferences, season], outputs=all_travel)
         result_but.click(get_result_df, inputs=[travel_compactness, city, attraction_preferences, season], outputs=result_df_output)
-
 
 demo.launch(share=True)
