@@ -45,7 +45,6 @@ def show_all_output(travel_days, travel_compactness, city, attraction_preference
     result_dict = Description_Writer().write(itinerary=itinerary, poi_query_description=new_poi_query[1])
     print(result_dict)
     re_list.append(result_dict)
-
     # all travel
     result = list()
     for day, info in result_dict.items():
