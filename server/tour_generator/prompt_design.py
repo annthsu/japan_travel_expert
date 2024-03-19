@@ -133,7 +133,6 @@ class Japan_travel_itinerary_generation:
                 if count==3:
                     logger.error(e)
                     raise
-
                 continue
         
         logger.info('The itinerary is successfully generated and parsed into json')
