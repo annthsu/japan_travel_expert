@@ -31,7 +31,7 @@ class Japan_travel_itinerary_generation:
               2. The sequence of scenic spots is arranged reasonably and smoothly. For nearby attractions, try to arrange them on the same day, and consider the transportation time between attractions. \
               3. Please distribute the scenic spots evenly in the daily itinerary to avoid duplicating scenic spots in the itinerary. \
               4. The output must be in Traditional Chinese.
-              5. Make sure the output follows the json format below and has no other text output. {JSON_PARSER}. \
+              5. Please be absolutely sure that the output follows the json format below and has no other text output. {JSON_PARSER}. \
             '''
         self.json_parser = {
             "DAY 1": {
@@ -119,10 +119,15 @@ class Japan_travel_itinerary_generation:
                     timeout=100
                 )
                 
+                print(response)
+                
                 output = eval(response.choices[0].message.content[response.choices[0].message.content.find(
                     "{"):response.choices[0].message.content.rfind("}")+1])
                 
+                print(output)
+                
                 final_itinerary = self.caculate_time(output)
+                
                 end = time.time()
                 logger.info('Execution time: {} seconds'.format(end - start))
                 break
@@ -130,7 +135,7 @@ class Japan_travel_itinerary_generation:
                 count += 1
                 logger.info('This is {} time(s) failed'.format(count))
                 
-                if count==3:
+                if count==5:
                     logger.error(e)
                     raise
                 continue
