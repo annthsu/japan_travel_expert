@@ -122,9 +122,9 @@ class Japan_travel_itinerary_generation:
                 output = eval(response.choices[0].message.content[response.choices[0].message.content.find(
                     "{"):response.choices[0].message.content.rfind("}")+1])
                 
-                logger.info('Execution time: {} seconds'.format(end - start))
                 final_itinerary = self.caculate_time(output)
                 end = time.time()
+                logger.info('Execution time: {} seconds'.format(end - start))
                 break
             except Exception as e:
                 count += 1
