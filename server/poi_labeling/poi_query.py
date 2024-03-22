@@ -7,7 +7,11 @@ from time import time
 import numpy as np
 import pandas as pd
 from geopy.distance import geodesic
-from loguru import logger
+# from loguru import logger
+from utils.log_tool import Log
+from config import basic
+log = Log(basic.LOG_PATH)
+logger = log.setup_logger('logger', 'poi_query.log')
 
 
 class QueryPOI:
@@ -24,7 +28,7 @@ class QueryPOI:
         poi_df['labeling_introduction'] = poi_df['labeling_introduction'].fillna('')
         self.poi_data = poi_df
         self.poi_labels = poi_df['labels']
-        self.type_filter = poi_df['exclude_types'].str.len()==0
+        self.type_filter = poi_df['exclude_types'].str.len() == 0
         self.poi_point_list = poi_df[['LONG', 'LAT']].values
         with open(labels_file_path, 'r') as reader:
             self.label_shots = json.load(reader)
@@ -128,7 +132,7 @@ class QueryPOI:
             tmp_dict['Latitude and longitude'] = f"({poi_data['LAT']:.3f}, {poi_data['LONG']:.3f})"
             tmp_dict['Business_hours'] = self._process_business_hours(poi_data['OPENING_TIME_DICT'])
             tmp_dict['Resident_time'] = self._process_stop_time(poi_data['STOP_TIME'])
-        
+
         return tour_result, desc_result
 
     def query_poi(self, user_input: dict):
@@ -140,9 +144,9 @@ class QueryPOI:
             if label in labels_index:
                 user_array[labels_index[label]] = 1
 
-        city_filter = self.poi_data['G_CITY']==user_input['city']
+        city_filter = self.poi_data['G_CITY'] == user_input['city']
         candidate_pois = self.poi_data[city_filter & self.type_filter]
-        
+
         sim_results = []
         for index, candidate in zip(
             candidate_pois.index,
@@ -164,11 +168,11 @@ class QueryPOI:
         sorted_poi = sorted(sim_results, key=lambda x: (x[1], x[2]), reverse=True)[:max_poi_count]
         if len(sorted_poi) < max_poi_count:
             sorted_poi = self.add_poi_by_distance(sorted_poi, max_poi_count)
-        
+
         logger.info(f"Query Result:\n{sorted_poi}")
         index_result = [poi[0] for poi in sorted_poi]
         return index_result
-    
+
     def main(self, user_input: dict):
         logger.info(f"User Input: {user_input}")
 
