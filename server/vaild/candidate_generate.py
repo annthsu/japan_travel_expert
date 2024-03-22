@@ -1,3 +1,6 @@
+from server.vaild.infodata_loader import DataPreprocess
+from server.vaild.cost_time_check import TimeCostChecker
+from server.vaild.opentime_check import OpenTimeChecker
 import pandas as pd
 import pandarallel
 from tqdm.notebook import tqdm
@@ -10,8 +13,25 @@ from collections import OrderedDict
 from collections import defaultdict
 from collections import Counter
 import re
-import statistics
-import math
+
+
+def get_related_data(data):
+    # with open('/home/annhsu/Test/reading_project/test_data.json', 'r') as f:
+    #     test_data = json.load(f)
+
+    dp = DataPreprocess()
+    route_data = dp.get_route_data()
+    use_stop_time_dict = dp.get_raw_stop_time()
+    opening_data_dict = dp.get_raw_opening_time()
+    candidate_dict = dp.get_candidate_poi()
+
+    time_checker = TimeCostChecker(gpt_result_data=data, use_stop_time_dict=use_stop_time_dict, route_data=route_data)
+    allday_overtime_vaild_days, stop_vaild_poi, gpt_result_data = time_checker.main()
+
+    opening_checker = OpenTimeChecker(gpt_result_data=gpt_result_data, opening_data=opening_data_dict)
+    open_vaild_poi = opening_checker.check_open_time(5, 3)
+
+    return candidate_dict, opening_data_dict, use_stop_time_dict,
 
 
 def generate_poi_candidates(candidate_dict,
@@ -61,10 +81,23 @@ def generate_poi_candidates(candidate_dict,
     return pass_poi_list[:num_results]
 
 
+def execute_change(data, label_list, day, start_time, end_time, num_results):
+    candidate_dict, opening_data_dict, use_stop_time_dict = get_related_data(data)
+
+    return generate_poi_candidates(candidate_dict,
+                                   opening_data_dict,
+                                   use_stop_time_dict,
+                                   label_list,
+                                   day,
+                                   start_time,
+                                   end_time,
+                                   num_results)
+
+
 if __name__ == '__main__':
-    from server.vaild.infodata_loader import DataPreprocess
-    from server.vaild.cost_time_check import TimeCostChecker
-    from server.vaild.opentime_check import OpenTimeChecker
+    # from server.vaild.infodata_loader import DataPreprocess
+    # from server.vaild.cost_time_check import TimeCostChecker
+    # from server.vaild.opentime_check import OpenTimeChecker
 
     with open('/home/annhsu/Test/reading_project/test_data.json', 'r') as f:
         test_data = json.load(f)
