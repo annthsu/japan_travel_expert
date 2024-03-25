@@ -82,7 +82,6 @@ def show_all_output(travel_days, travel_compactness, city, attraction_preference
     return df, all_travel
     # return result_dict
 
-
 def show_one_day_output(current_day, travel_days):
     map_info = get_map(current_day, travel_days)
     route_df = get_route_df(current_day, travel_days)
@@ -91,7 +90,6 @@ def show_one_day_output(current_day, travel_days):
 
     return map_info, route_df, day_description, day_travel
 
-
 def replace_quotes(obj):
     if isinstance(obj, dict):
         return {replace_quotes(key): replace_quotes(value) for key, value in obj.items()}
@@ -99,7 +97,6 @@ def replace_quotes(obj):
         return obj.replace("「", "*").replace("」", "*").replace("【", "*").replace("】", "*").replace("『", "*").replace("』", "*").replace("《", "*").replace("》", "*").replace("'", "*").replace("\"", "*")
     else:
         return obj
-
 
 def get_map(current_day, travel_days):
     result_dict = re_list[0]
@@ -187,9 +184,6 @@ def get_day_description(current_day, travel_days):
 
     return current_travel
 
-
-def get_day_travel(current_day, travel_days):
-    result_dict = re_list[0]
 def get_day_travel(current_day, travel_days):
     result_dict = re_list[0]
     result = list()
