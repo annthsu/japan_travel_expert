@@ -1,16 +1,19 @@
-from liontk.enum.azure_openai import AzureGPT
-from liontk.openai.nlp.azure_gpt_client import AzureGPTClient
-# from server.poi_labeling.poi_query import QueryPOI
-# from loguru import logger
-import arrow
-import json
-import time
-import re
-from utils.log_tool import Log
 from config import basic
+from utils.log_tool import Log
+from openai import AzureOpenAI
+import tiktoken
+
+import re
+import json_repair
+import time
+import arrow
+
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 log = Log(basic.LOG_PATH)
 logger = log.setup_logger('logger', 'generate.log')
-
 
 class Japan_travel_itinerary_generation:
     def __init__(self, ref_data, area, days, season) -> None:
@@ -73,11 +76,19 @@ class Japan_travel_itinerary_generation:
                                                             DAYS=days,
                                                             SEASON=season,
                                                             JSON_PARSER=self.json_parser)
-        self.client = AzureGPTClient.get_client(env_enum=AzureGPT.DSOPENAI2,
-                                                api_version='2024-02-15-preview')
-        self.client.set_encoding(encoding_name=AzureGPT.CL100K_BASE)
+        self.api_version = '2024-02-15-preview'
+        self.model_name = "gpt-4-8k"
+        self.client = AzureOpenAI(api_key=os.getenv("Azure_Openai_API_KEY"),
+                                  api_version=self.api_version,
+                                  azure_endpoint=os.getenv("Azure_Openai_endpoint"))
 
-    def caculate_time(self, output):
+
+    def num_tokens_from_string(self, string: str, encoding_name: str) -> int:
+        encoding = tiktoken.get_encoding(encoding_name)
+        num_tokens = len(encoding.encode(string))
+        return num_tokens
+
+    def caculate_time(self, output:dict) -> dict:
 
         for key, value in output.items():
             time1 = arrow.get(list(value['Attractions'].values())[
@@ -87,12 +98,13 @@ class Japan_travel_itinerary_generation:
 
             time_diff = time2 - time1
 
-            output[key]['cost_time'] = round(time_diff.total_seconds() / 3600, 3)
+            output[key]['cost_time'] = round(
+                time_diff.total_seconds() / 3600, 3)
 
         return output
 
     @staticmethod
-    def translate_time(stay_time):
+    def translate_time(stay_time:str) -> float:
         if ("hour" in stay_time) and ("minute" in stay_time):
             x = re.findall(r'\d+', stay_time)
             return round(int(x[0]) + int(x[1])/60, 3)
@@ -115,23 +127,21 @@ class Japan_travel_itinerary_generation:
         logger.info('Start executing the gpt api')
         while count < 5:
             try:
-                response = self.client.chat(
-                    model_name=AzureGPT.DSOPENAI2_GPT_4_8K,
+                response = self.client.chat.completions.create(
+                    model=self.model_name,
                     temperature=0.5,
                     messages=conversation,
                     max_tokens=8192 -
-                    self.client.compute_tokens(str(conversation)),
+                    self.num_tokens_from_string(string=str(
+                        conversation), encoding_name="cl100k_base"),
                     timeout=100
                 )
 
-                print(response)
-
-                output = eval(response.choices[0].message.content[response.choices[0].message.content.find(
-                    "{"):response.choices[0].message.content.rfind("}")+1])
-
-                print(output)
+                output = json_repair.loads(
+                    response.choices[0].message.content[response.choices[0].message.content.find("{"):])
 
                 final_itinerary = self.caculate_time(output)
+
 
                 end = time.time()
                 logger.info('Execution time: {} seconds'.format(end - start))
@@ -145,10 +155,7 @@ class Japan_travel_itinerary_generation:
                     raise
                 continue
 
-        logger.info('The itinerary is successfully generated and parsed into json')
-
-        # for key in final_itinerary.keys():
-        #     for attr in final_itinerary[key]['Attractions']:
-        #         final_itinerary[key]['Attractions'][attr]['Stay_time'] = self.translate_time(final_itinerary[key]['Attractions'][attr]['Stay_time'])
+        logger.info(
+            'The itinerary is successfully generated and parsed into json')
 
         return final_itinerary
