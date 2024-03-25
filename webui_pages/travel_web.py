@@ -199,10 +199,6 @@ def get_day_description(current_day, travel_days):
 
 def get_day_travel(current_day, travel_days):
     result_dict = re_list[0]
-
-
-def get_day_travel(current_day, travel_days):
-    result_dict = re_list[0]
     result = list()
     for day, info in result_dict.items():
         cost_time = round(info['cost_time'], 1)
