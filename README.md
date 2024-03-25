@@ -44,14 +44,14 @@ To get a local copy up and running follow these simple example steps.
 
 ### Installation
 
-1. prepare Azure/Openai API KEY
+1. create .env file and add Azure Openai API KEY、Azure Openai endpoint、google map api key、
 2. install packages
    ```sh
    pip install -r requirements.txt
    ```
 3. Run services
    ```sh
-   python -m server.webpage.travel_web
+   python -m webui_pages.travel_web
    ```
 
 <!-- LICENSE -->

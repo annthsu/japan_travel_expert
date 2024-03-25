@@ -5,5 +5,6 @@ pandas==2.2.1
 gradio
 openai
 json_repair
-pandarallel
-
+pandarallels
+python-dotenv
+geopy

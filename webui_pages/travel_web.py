@@ -7,6 +7,11 @@ import gradio as gr
 import pandas as pd
 import random
 
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+
 re_list = []
 
 
@@ -44,7 +49,7 @@ def show_all_output(travel_days, travel_compactness, city, attraction_preference
     result_dict = Description_Writer().write(
         itinerary=itinerary, poi_query_description=new_poi_query[1])
     re_list.append(result_dict)
-    if len(re_list) >1:
+    if len(re_list) > 1:
         re_list.pop(0)
     # all travel
     result = list()
@@ -104,6 +109,8 @@ def replace_quotes(obj):
 def get_map(current_day, travel_days):
     result_dict = re_list[0]
     result = list()
+    google_api_key = os.getenv('GOOGLE_API_KEY')
+
     for day, info in result_dict.items():
         attractions = info['Attractions']
         a_list = list()
@@ -126,7 +133,7 @@ def get_map(current_day, travel_days):
         else:
             medium = ''
         map_result = f'''
-        <iframe width="600" height="450" style="border:0" loading="lazy" allowfullscreen src="https://www.google.com/maps/embed/v1/directions?{begin}{medium}{final}&key={key}"></iframe>
+        <iframe width="600" height="450" style="border:0" loading="lazy" allowfullscreen src="https://www.google.com/maps/embed/v1/directions?{begin}{medium}{final}&key={google_api_key}"></iframe>
         '''
         print(map_result)
         print(map_result)
@@ -140,7 +147,6 @@ def get_map(current_day, travel_days):
     return map_info
 
 
-def get_route_df(current_day, travel_days):
 def get_route_df(current_day, travel_days):
 
     result_dict = re_list[0]
@@ -168,6 +174,7 @@ def get_route_df(current_day, travel_days):
 def get_day_description(current_day, travel_days):
     result_dict = re_list[0]
 
+
 def get_day_description(current_day, travel_days):
     result_dict = re_list[0]
     result = list()
@@ -192,6 +199,8 @@ def get_day_description(current_day, travel_days):
 
 def get_day_travel(current_day, travel_days):
     result_dict = re_list[0]
+
+
 def get_day_travel(current_day, travel_days):
     result_dict = re_list[0]
     result = list()
