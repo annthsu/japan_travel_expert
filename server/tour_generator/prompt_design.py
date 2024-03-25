@@ -82,9 +82,6 @@ class Japan_travel_itinerary_generation:
                                   api_version=self.api_version,
                                   azure_endpoint=os.getenv("Azure_Openai_endpoint"))
 
-        # self.client = AzureGPTClient.get_client(env_enum=AzureGPT.DSOPENAI2,
-        #                                         api_version='2024-02-15-preview')
-        # self.client.set_encoding(encoding_name=AzureGPT.CL100K_BASE)
 
     def num_tokens_from_string(self, string: str, encoding_name: str) -> int:
         encoding = tiktoken.get_encoding(encoding_name)
