@@ -2,6 +2,7 @@
 from server.tour_generator.prompt_design import Japan_travel_itinerary_generation
 from server.tour_generator.description_writer import Description_Writer
 from server.poi_labeling.poi_query import QueryPOI
+from server.vaild.candidate_generate import execute_change
 import gradio as gr
 import pandas as pd
 import random
@@ -28,6 +29,8 @@ def show_all_output(travel_days, travel_compactness, city, attraction_preference
     user_input = {
         "poi_each_day": poi_each_day,
         "days": int(travel_days),
+        "poi_each_day": poi_each_day,
+        "days": int(travel_days),
         "city": city,
         "labels": attraction_preferences
     }
@@ -52,6 +55,7 @@ def show_all_output(travel_days, travel_compactness, city, attraction_preference
             a_list.append(attraction)
         route1 = ' -> '.join(a_list)
         url_formet = '/'.join(a_list)
+        url = f'https://www.google.com/maps/dir/{url_formet}'.replace(' ', '')
         url = f'https://www.google.com/maps/dir/{url_formet}'.replace(' ', '')
         t = f'''<body>
             <h3 style="text-align: center; font-weight: bold;">{day}</h3>
@@ -112,16 +116,19 @@ def get_map(current_day, travel_days):
             begin = ''
         if len(a_list) > 0:
             final = '&destination=日本' + a_list[-1]
+            final = '&destination=日本' + a_list[-1]
             del a_list[-1]
         else:
             final = '&destination='+'日本機場'
         if len(a_list) > 0:
+            medium = '&waypoints=日本'+'|日本'.join(a_list)
             medium = '&waypoints=日本'+'|日本'.join(a_list)
         else:
             medium = ''
         map_result = f'''
         <iframe width="600" height="450" style="border:0" loading="lazy" allowfullscreen src="https://www.google.com/maps/embed/v1/directions?{begin}{medium}{final}&key={key}"></iframe>
         '''
+        print(map_result)
         print(map_result)
         result.append(map_result)
 
@@ -134,7 +141,9 @@ def get_map(current_day, travel_days):
 
 
 def get_route_df(current_day, travel_days):
+def get_route_df(current_day, travel_days):
 
+    result_dict = re_list[0]
     result_dict = re_list[0]
     all_result = list()
     for day, info in result_dict.items():
@@ -155,6 +164,9 @@ def get_route_df(current_day, travel_days):
 
     return df
 
+
+def get_day_description(current_day, travel_days):
+    result_dict = re_list[0]
 
 def get_day_description(current_day, travel_days):
     result_dict = re_list[0]
@@ -180,6 +192,8 @@ def get_day_description(current_day, travel_days):
 
 def get_day_travel(current_day, travel_days):
     result_dict = re_list[0]
+def get_day_travel(current_day, travel_days):
+    result_dict = re_list[0]
     result = list()
     for day, info in result_dict.items():
         cost_time = round(info['cost_time'], 1)
@@ -190,6 +204,7 @@ def get_day_travel(current_day, travel_days):
             a_list.append(attraction)
         route1 = ' -> '.join(a_list)
         url_formet = '/'.join(a_list)
+        url = f'https://www.google.com/maps/dir/{url_formet}'.replace(' ', '')
         url = f'https://www.google.com/maps/dir/{url_formet}'.replace(' ', '')
         t = f'''<body>
           <h3 style="text-align: center; font-weight: bold;">{day}</h3>

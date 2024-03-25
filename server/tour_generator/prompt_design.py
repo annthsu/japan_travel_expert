@@ -1,11 +1,18 @@
 from liontk.enum.azure_openai import AzureGPT
 from liontk.openai.nlp.azure_gpt_client import AzureGPTClient
+# from server.poi_labeling.poi_query import QueryPOI
+# from loguru import logger
 #from server.poi_labeling.poi_query import QueryPOI
 from loguru import logger
 import arrow
 import json
-import time 
+import time
 import re
+from utils.log_tool import Log
+from config import basic
+log = Log(basic.LOG_PATH)
+logger = log.setup_logger('logger', 'generate.log')
+
 
 class Japan_travel_itinerary_generation:
     def __init__(self, ref_data, area, days, season) -> None:
@@ -31,7 +38,7 @@ class Japan_travel_itinerary_generation:
               2. The sequence of scenic spots is arranged reasonably and smoothly. For nearby attractions, try to arrange them on the same day, and consider the transportation time between attractions. \
               3. Please distribute the scenic spots evenly in the daily itinerary to avoid duplicating scenic spots in the itinerary. \
               4. The output must be in Traditional Chinese.
-              5. Make sure the output follows the json format below and has no other text output. {JSON_PARSER}. \
+              5. Please be absolutely sure that the output follows the json format below and has no other text output. {JSON_PARSER}. \
             '''
         self.json_parser = {
             "DAY 1": {
@@ -82,19 +89,19 @@ class Japan_travel_itinerary_generation:
 
             time_diff = time2 - time1
 
-            output[key]['cost_time'] = round(time_diff.total_seconds() / 3600,3)
+            output[key]['cost_time'] = round(time_diff.total_seconds() / 3600, 3)
 
         return output
-    
+
     @staticmethod
     def translate_time(stay_time):
         if ("hour" in stay_time) and ("minute" in stay_time):
             x = re.findall(r'\d+', stay_time)
-            return round(int(x[0]) + int(x[1])/60,3)
+            return round(int(x[0]) + int(x[1])/60, 3)
         elif ("hour" in stay_time):
-            return float(re.findall(r'\d+',stay_time)[0])
+            return float(re.findall(r'\d+', stay_time)[0])
         else:
-            return round(int(re.findall(r'\d+',stay_time)[0])/60,3)
+            return round(int(re.findall(r'\d+', stay_time)[0])/60, 3)
 
     def main(self):
 
@@ -104,7 +111,7 @@ class Japan_travel_itinerary_generation:
             {"role": "user",
              "content": self.user_prompt}
         ]
-        
+
         count = 0
         start = time.time()
         logger.info('Start executing the gpt api')
@@ -118,30 +125,32 @@ class Japan_travel_itinerary_generation:
                     self.client.compute_tokens(str(conversation)),
                     timeout=100
                 )
-                
+
+                print(response)
+
                 output = eval(response.choices[0].message.content[response.choices[0].message.content.find(
                     "{"):response.choices[0].message.content.rfind("}")+1])
-                
+
+                print(output)
+
                 final_itinerary = self.caculate_time(output)
+
                 end = time.time()
                 logger.info('Execution time: {} seconds'.format(end - start))
                 break
             except Exception as e:
                 count += 1
                 logger.info('This is {} time(s) failed'.format(count))
-                
-                if count==3:
+
+                if count == 5:
                     logger.error(e)
                     raise
                 continue
-        
-        logger.info('The itinerary is successfully generated and parsed into json')
 
+        logger.info('The itinerary is successfully generated and parsed into json')
 
         # for key in final_itinerary.keys():
         #     for attr in final_itinerary[key]['Attractions']:
         #         final_itinerary[key]['Attractions'][attr]['Stay_time'] = self.translate_time(final_itinerary[key]['Attractions'][attr]['Stay_time'])
-        
-       
-        return final_itinerary
 
+        return final_itinerary
