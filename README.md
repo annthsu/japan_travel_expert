@@ -44,7 +44,7 @@ To get a local copy up and running follow these simple example steps.
 
 ### Installation
 
-1. create .env file and add Azure Openai API KEY、Azure Openai endpoint、google map api key
+1. create .env file and add AZURE_OPENAI_API_KEY、AZURE_OPENAI_ENDPOINT、GOOGLE_API_KEY
 2. install packages
    ```sh
    pip install -r requirements.txt
