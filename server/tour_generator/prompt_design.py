@@ -145,6 +145,7 @@ class Japan_travel_itinerary_generation:
 
                 final_itinerary = self.caculate_time(output)
 
+
                 end = time.time()
                 logger.info('Execution time: {} seconds'.format(end - start))
                 break
