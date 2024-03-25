@@ -173,10 +173,6 @@ def get_route_df(current_day, travel_days):
 
 def get_day_description(current_day, travel_days):
     result_dict = re_list[0]
-
-
-def get_day_description(current_day, travel_days):
-    result_dict = re_list[0]
     result = list()
     for day, info in result_dict.items():
         description = info['Description']
