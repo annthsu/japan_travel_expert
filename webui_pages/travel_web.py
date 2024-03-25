@@ -139,8 +139,6 @@ def get_map(current_day, travel_days):
 
     return map_info
 
-
-def get_route_df(current_day, travel_days):
 def get_route_df(current_day, travel_days):
 
     result_dict = re_list[0]
