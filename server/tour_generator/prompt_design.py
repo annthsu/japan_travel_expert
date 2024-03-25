@@ -15,6 +15,7 @@ load_dotenv()
 log = Log(basic.LOG_PATH)
 logger = log.setup_logger('logger', 'generate.log')
 
+
 class Japan_travel_itinerary_generation:
     def __init__(self, ref_data, area, days, season) -> None:
         self.system_prompt = "You are a Japan travel expert with at least 30 years of experience in Japan. Planning your Japan travel itinerary is a breeze for you."
@@ -78,17 +79,16 @@ class Japan_travel_itinerary_generation:
                                                             JSON_PARSER=self.json_parser)
         self.api_version = '2024-02-15-preview'
         self.model_name = "gpt-4-8k"
-        self.client = AzureOpenAI(api_key=os.getenv("Azure_Openai_API_KEY"),
+        self.client = AzureOpenAI(api_key=os.getenv("AZURE_OPENAI_API_KEY"),
                                   api_version=self.api_version,
-                                  azure_endpoint=os.getenv("Azure_Openai_endpoint"))
-
+                                  azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"))
 
     def num_tokens_from_string(self, string: str, encoding_name: str) -> int:
         encoding = tiktoken.get_encoding(encoding_name)
         num_tokens = len(encoding.encode(string))
         return num_tokens
 
-    def caculate_time(self, output:dict) -> dict:
+    def caculate_time(self, output: dict) -> dict:
 
         for key, value in output.items():
             time1 = arrow.get(list(value['Attractions'].values())[
@@ -104,7 +104,7 @@ class Japan_travel_itinerary_generation:
         return output
 
     @staticmethod
-    def translate_time(stay_time:str) -> float:
+    def translate_time(stay_time: str) -> float:
         if ("hour" in stay_time) and ("minute" in stay_time):
             x = re.findall(r'\d+', stay_time)
             return round(int(x[0]) + int(x[1])/60, 3)
@@ -141,7 +141,6 @@ class Japan_travel_itinerary_generation:
                     response.choices[0].message.content[response.choices[0].message.content.find("{"):])
 
                 final_itinerary = self.caculate_time(output)
-
 
                 end = time.time()
                 logger.info('Execution time: {} seconds'.format(end - start))

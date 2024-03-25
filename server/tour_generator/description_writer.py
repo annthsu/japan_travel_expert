@@ -14,15 +14,16 @@ load_dotenv()
 log = Log(basic.LOG_PATH)
 logger = log.setup_logger('logger', 'desc.log')
 
+
 class Description_Writer():
     def __init__(self) -> None:
         self.api_version = '2024-02-15-preview'
         self.model_name = "gpt-35-turbo-16k"
         self.client = AzureOpenAI(
-                    api_key=os.getenv("AZURE_OPENAI_API_KEY"),  
-                    api_version=self.api_version,
-                    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
-                )
+            api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+            api_version=self.api_version,
+            azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
+        )
         self.system_prompt = """As a expert in travel itinerary writer, you need to write a daily itinerary description based on the provided schedule, incorporating detailed descriptions of each attraction. 
         Our goal is to create a narrative that is both informative and captivating,offering not only practical schedule information but also integrating the charm and stories of the attractions,allowing readers to experience the wonders of the journey through text.
         You should write in the following two steps:
@@ -61,8 +62,8 @@ class Description_Writer():
             temperature=0.1,
             messages=self.conversation,
             max_tokens=16385 -
-            self.num_tokens_from_string(string = str(self.conversation), encoding_name = "cl100k_base")
-            )
+            self.num_tokens_from_string(string=str(self.conversation), encoding_name="cl100k_base")
+        )
         output = response.choices[0].message.content
         logger.info("Output Get.")
         #
@@ -100,7 +101,7 @@ class Description_Writer():
         except Exception as e:
             logger.error(e)
         return itinerary
-    
+
     def num_tokens_from_string(self, string: str, encoding_name: str) -> int:
         encoding = tiktoken.get_encoding(encoding_name)
         num_tokens = len(encoding.encode(string))
