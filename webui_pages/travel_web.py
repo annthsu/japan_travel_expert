@@ -8,18 +8,16 @@ import random
 
 re_list = []
 
+
 def show_all_output(travel_days, travel_compactness, city, attraction_preferences, season):
+    # re_list = []
     query_poi = QueryPOI()
-    print(season)
-    print(travel_days)
-    print(travel_compactness)
-    print(city)
-    print(attraction_preferences)
-    if travel_compactness =='鬆散':
+
+    if travel_compactness == '鬆散':
         poi_each_day = 2
         level = 1
-    
-    elif travel_compactness =='普通':
+
+    elif travel_compactness == '普通':
         poi_each_day = random.choice([3, 4])
         level = 2
 
@@ -33,18 +31,18 @@ def show_all_output(travel_days, travel_compactness, city, attraction_preference
         "city": city,
         "labels": attraction_preferences
     }
-    print(user_input)
     poi_query = query_poi.main(user_input)
 
-    print('poi')
-    print(poi_query)
     new_poi_query = tuple(replace_quotes(item) for item in poi_query)
-    itinerary_generation = Japan_travel_itinerary_generation(ref_data = new_poi_query[0], area=city, days=int(travel_days), season=season)
+    itinerary_generation = Japan_travel_itinerary_generation(
+        ref_data=new_poi_query[0], area=city, days=int(travel_days), season=season)
     itinerary = itinerary_generation.main()
     # Write description
-    result_dict = Description_Writer().write(itinerary=itinerary, poi_query_description=new_poi_query[1])
-    print(result_dict)
+    result_dict = Description_Writer().write(
+        itinerary=itinerary, poi_query_description=new_poi_query[1])
     re_list.append(result_dict)
+    if len(re_list) >1:
+        re_list.pop(0)
     # all travel
     result = list()
     for day, info in result_dict.items():
@@ -54,17 +52,16 @@ def show_all_output(travel_days, travel_compactness, city, attraction_preference
             a_list.append(attraction)
         route1 = ' -> '.join(a_list)
         url_formet = '/'.join(a_list)
-        url = f'https://www.google.com/maps/dir/{url_formet}'.replace(' ','')
+        url = f'https://www.google.com/maps/dir/{url_formet}'.replace(' ', '')
         t = f'''<body>
             <h3 style="text-align: center; font-weight: bold;">{day}</h3>
             <h3 style="text-align: center; font-weight: bold;">{route1}</h3>
             <h3 style="text-align: center;"><a href={url} style="color: #0072E3;">google map</a></h3>
             </body>'''
         result.append(t)
-    print(result)
     all_travel = ''.join(result)
 
-    #df
+    # df
     result = list()
     r_dict = {}
     r_dict['旅遊城市'] = city
@@ -78,10 +75,9 @@ def show_all_output(travel_days, travel_compactness, city, attraction_preference
     result.append(r_dict)
     df = pd.DataFrame(result)
 
-    print(df)
-
     return df, all_travel
     # return result_dict
+
 
 def show_one_day_output(current_day, travel_days):
     map_info = get_map(current_day, travel_days)
@@ -96,9 +92,10 @@ def replace_quotes(obj):
     if isinstance(obj, dict):
         return {replace_quotes(key): replace_quotes(value) for key, value in obj.items()}
     elif isinstance(obj, str):
-        return obj.replace("「", "*").replace("」", "*").replace("【", "*").replace("】", "*").replace("『", "*").replace("』", "*").replace("《", "*").replace("》","*").replace("'", "*").replace("\"", "*")
+        return obj.replace("「", "*").replace("」", "*").replace("【", "*").replace("】", "*").replace("『", "*").replace("』", "*").replace("《", "*").replace("》", "*").replace("'", "*").replace("\"", "*")
     else:
         return obj
+
 
 def get_map(current_day, travel_days):
     result_dict = re_list[0]
@@ -123,7 +120,7 @@ def get_map(current_day, travel_days):
         else:
             medium = ''
         map_result = f'''
-        <iframe width="600" height="450" style="border:0" loading="lazy" allowfullscreen src="https://www.google.com/maps/embed/v1/directions?{begin}{medium}{final}&mode=transit&key={key}"></iframe>
+        <iframe width="600" height="450" style="border:0" loading="lazy" allowfullscreen src="https://www.google.com/maps/embed/v1/directions?{begin}{medium}{final}&key={key}"></iframe>
         '''
         print(map_result)
         result.append(map_result)
@@ -146,8 +143,8 @@ def get_route_df(current_day, travel_days):
         for attraction, details in attractions.items():
             day_dict = {}
             day_dict['景點名稱'] = attraction
-            print(details['Stay_time'])
-            stay_time = details['Start_time'] + '~'+ details['End_time'] +' (' + details['Stay_time'] +')'
+            stay_time = details['Start_time'] + '~' + \
+                details['End_time'] + ' (' + details['Stay_time'] + ')'
             day_dict['預計停留時間'] = stay_time
             result.append(day_dict)
         all_result.append(result)
@@ -157,6 +154,7 @@ def get_route_df(current_day, travel_days):
         df = pd.DataFrame(columns=['景點名稱', '預計停留時間'])
 
     return df
+
 
 def get_day_description(current_day, travel_days):
     result_dict = re_list[0]
@@ -174,7 +172,6 @@ def get_day_description(current_day, travel_days):
         result.append(t)
     if int(current_day) <= int(travel_days):
         current_travel = result[int(current_day)-1]
-        print(current_travel)
     else:
         current_travel = '<h3 style="font-weight: bold;">無資料</h3>'
 
@@ -193,7 +190,7 @@ def get_day_travel(current_day, travel_days):
             a_list.append(attraction)
         route1 = ' -> '.join(a_list)
         url_formet = '/'.join(a_list)
-        url = f'https://www.google.com/maps/dir/{url_formet}'.replace(' ','')
+        url = f'https://www.google.com/maps/dir/{url_formet}'.replace(' ', '')
         t = f'''<body>
           <h3 style="text-align: center; font-weight: bold;">{day}</h3>
           <h3 style="text-align: center; font-weight: bold;">{route1}</h3>
@@ -209,23 +206,30 @@ def get_day_travel(current_day, travel_days):
 
     return current_travel
 
-with gr.Blocks(theme='finlaymacklon/smooth_slate',title="日本旅遊規劃") as demo:
+
+with gr.Blocks(theme='finlaymacklon/smooth_slate', title="日本旅遊規劃") as demo:
 
     with gr.Row():
         gr.HTML(f"<div style=\"text-align: center;\">\n<h1>🧫 日本旅遊規劃 🧫</h1>\n</div>")
 
     with gr.Row():
         with gr.Column():
-            travel_days = gr.Dropdown(["1", "2", "3", "4", "5", "6", "7"], value='5', label="天數", info="請選擇總天數")
-            travel_compactness = gr.Dropdown(["鬆散", "普通", "緊湊"], value='普通', label="行程緊湊度", info="請選擇一天想安排多少個景點")
-            season = gr.Radio(['春天','夏天','秋天','冬天'], value='春天', label="旅行季節", info="請選擇旅行季節")
+            travel_days = gr.Dropdown(
+                ["1", "2", "3", "4", "5", "6", "7"], value='5', label="天數", info="請選擇總天數")
+            travel_compactness = gr.Dropdown(
+                ["鬆散", "普通", "緊湊"], value='普通', label="行程緊湊度", info="請選擇一天想安排多少個景點")
+            season = gr.Radio(['春天', '夏天', '秋天', '冬天'],
+                              value='春天', label="旅行季節", info="請選擇旅行季節")
         with gr.Column():
-            city = gr.Dropdown(["東京都"], value='東京都', label="城市", info="請選擇想去的城市")
-            attraction_preferences = gr.CheckboxGroup(["購物", "親子", "藝文", "自然生態", "歷史古蹟", "戶外活動", "宗教", "動漫、二次元", "溫泉", "水上活動", "主題樂園"],label="行程主題", info="請選擇想要的主題類型")
+            city = gr.Dropdown(["東京都"], value='東京都',
+                               label="城市", info="請選擇想去的城市")
+            attraction_preferences = gr.CheckboxGroup(
+                ["購物", "親子", "藝文", "自然生態", "歷史古蹟", "戶外活動", "宗教", "動漫、二次元", "溫泉", "水上活動", "主題樂園"], label="行程主題", info="請選擇想要的主題類型")
     with gr.Row():
         result_but = gr.Button("結果!!!!")
     with gr.Tabs():
-        gr.HTML(f"<div style=\"text-align: center;\">\n<h2>🎐 行程總覽</h2>\n<h2></h2></div>")
+        gr.HTML(
+            f"<div style=\"text-align: center;\">\n<h2>🎐 行程總覽</h2>\n<h2></h2></div>")
         with gr.Row():
             with gr.Column(variant="panel"):
                 all_travel = gr.HTML()
@@ -237,16 +241,20 @@ with gr.Blocks(theme='finlaymacklon/smooth_slate',title="日本旅遊規劃") as
                 map_output = gr.HTML()
                 # result_df_output = gr.Dataframe(interactive=True, wrap=True)
     with gr.Tabs():
-        gr.HTML(f"<div style=\"text-align: center;\">\n<h2>🎐 詳細行程內容</h2>\n<h2></h2></div>")
+        gr.HTML(
+            f"<div style=\"text-align: center;\">\n<h2>🎐 詳細行程內容</h2>\n<h2></h2></div>")
         day_travel = gr.HTML()
         with gr.Row():
             with gr.Column(variant="panel"):
                 day_description = gr.HTML()
             with gr.Column(variant="panel"):
-                gr.HTML('<h3></h3><h3 style="text-align: center; font-weight: bold;">行程規劃</h3>')
+                gr.HTML(
+                    '<h3></h3><h3 style="text-align: center; font-weight: bold;">行程規劃</h3>')
                 df_output = gr.Dataframe(interactive=False, wrap=False)
 
-    day_but.click(show_one_day_output, inputs=[current_day, travel_days], outputs=[map_output, df_output, day_description, day_travel])
-    result_but.click(show_all_output, inputs=[travel_days, travel_compactness, city, attraction_preferences, season], outputs=[result_df_output, all_travel])
+    day_but.click(show_one_day_output, inputs=[current_day, travel_days], outputs=[
+                  map_output, df_output, day_description, day_travel])
+    result_but.click(show_all_output, inputs=[
+                     travel_days, travel_compactness, city, attraction_preferences, season], outputs=[result_df_output, all_travel])
 
 demo.launch(share=True)
