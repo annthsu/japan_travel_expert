@@ -44,12 +44,16 @@ To get a local copy up and running follow these simple example steps.
 
 ### Installation
 
-1. create .env file and add AZURE_OPENAI_API_KEY、AZURE_OPENAI_ENDPOINT、GOOGLE_API_KEY
-2. install packages
+1. Create .env file and add AZURE_OPENAI_API_KEY、AZURE_OPENAI_ENDPOINT、GOOGLE_API_KEY
+2. Install packages
    ```sh
    pip install -r requirements.txt
    ```
-3. Run services
+
+3. Download data from google drive to data folder
+   https://drive.google.com/file/d/1evMNQGVe0cCpOjL8YhnSRN6KIT8Gnh7x/view?usp=sharing
+
+4. Run services
    ```sh
    python -m webui_pages.travel_web
    ```
@@ -58,5 +62,3 @@ To get a local copy up and running follow these simple example steps.
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
-
-
